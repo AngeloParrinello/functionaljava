@@ -5,5 +5,12 @@
 * https://github.com/ilsasdo
 * enrico.sasdelli@gmail.com
 
-![meme](https://i.imgflip.com/9wy4rz.jpg)
+## Grazie per l'attenzione!
 
+### Scansiona per lasciarmi un feedback!
+![qrcode.png](qrcode.png)
+
+
+## Leggimi
+
+* A Philosophy of Software Design, John Ousterhout
