@@ -3,7 +3,6 @@
 
 * https://www.linkedin.com/in/enrico-sasdelli/
 * https://github.com/ilsasdo
-* enrico.sasdelli@gmail.com
 
 ![meme](https://i.imgflip.com/9wy4rz.jpg)
 
