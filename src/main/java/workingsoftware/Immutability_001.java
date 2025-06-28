@@ -13,26 +13,30 @@ import java.io.File;
 public class Immutability_001 {
 
     public static void main(String[] args) {
-        FtpUploader uploader = new FtpUploader();
+        FtpSettings ftpSettings = new FtpSettings()
+                .setUsername("user")
+                .setPassword("password")
+                .setHost("ftp.example.com")
+                .setPort(21);
+        File file = new File("path/to/file.txt");
+        FtpUploader uploader = new FtpUploader(ftpSettings, file);
+        // Here we take nothing as input and no output is produced ... probably a side-effect is involved
+        // we want to minimize side-effects, so we use a method that does not return anything
+        // side effects should stay outside the core logic of the application
         uploader.upload();
     }
 
     static class FtpUploader {
-        private FtpSettings ftpSettings;
-        private File file;
+        private final FtpSettings ftpSettings;
+        private final File file;
+
+        FtpUploader(FtpSettings ftpSettings, File file) {
+            this.ftpSettings = ftpSettings;
+            this.file = file;
+        }
 
         public void upload() {
-            System.out.println("FTP Upload to: "+ftpSettings.host+":"+ftpSettings.port+" with username: "+ftpSettings.username+" and password: "+ftpSettings.password+" file: "+file.getAbsolutePath());
-        }
-
-        public FtpUploader setFtpSettings(FtpSettings ftpSettings) {
-            this.ftpSettings = ftpSettings;
-            return this;
-        }
-
-        public FtpUploader setFile(File file) {
-            this.file = file;
-            return this;
+            System.out.println("FTP Upload to: " + ftpSettings.host + ":" + ftpSettings.port + " with username: " + ftpSettings.username + " and password: " + ftpSettings.password + " file: " + file.getAbsolutePath());
         }
     }
 

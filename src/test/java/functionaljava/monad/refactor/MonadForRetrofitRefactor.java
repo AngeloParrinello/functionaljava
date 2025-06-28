@@ -37,6 +37,7 @@ public class MonadForRetrofitRefactor {
         System.out.println("Published Vehicle Result: " + publishedVehicleId);
     }
 
+    // Union type in Java! Allows only two results: Success or Failure
     sealed interface HttpResult<T> permits Success, Failure {
 
         default <R> HttpResult<R> map(Function<T, R> mapper) {
@@ -58,7 +59,7 @@ public class MonadForRetrofitRefactor {
                     return new Failure<>(new HttpResponseException(response.code(), response.errorBody().string()));
                 }
             } catch (IOException e) {
-                return new Failure(e);
+                return new Failure<>(e);
             }
         }
 

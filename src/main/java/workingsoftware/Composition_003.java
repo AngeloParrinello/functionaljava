@@ -11,86 +11,80 @@ import java.util.List;
 public class Composition_003 {
 
     public static void main(String[] args) {
-        new SubitoPublisher().publish();
-        new AlVolantePublisher().publish();
+        Publisher.builder()
+                .code("subito")
+                .rule(v -> true)
+                .loadVehicles(code -> List.of(new Vehicle(), new Vehicle()))
+                .buildFile(vehicles -> new File("subito.txt"))
+                .publish();
+
+        new Publisher(
+                "subito",
+                v -> true,
+                code -> List.of(new Vehicle(), new Vehicle()),
+                vehicles -> new File("subito.txt")
+        ).publish();
+
+        new Publisher(
+                "alVolante",
+                v -> true,
+                code -> List.of(new Vehicle(), new Vehicle(), new Vehicle()),
+                vehicles -> new File("alvolante.txt")
+        ).publish();
     }
 
-    static abstract class Publisher {
+    interface PortalRule {
+        boolean isValid(Vehicle vehicle);
+    }
+
+    interface VehicleLoader {
+        List<Vehicle> loadVehicles(String code);
+    }
+
+    interface FileBuilder {
+        File build(List<Vehicle> vehicles);
+    }
+
+    static class Publisher {
 
         private final String code;
+        private final PortalRule isValid;
+        private final VehicleLoader loadVehicles;
+        private final FileBuilder buildFile;
 
-        Publisher(String code) {
+        Publisher(String code, PortalRule isValid, VehicleLoader loadVehicles, FileBuilder buildFile) {
             this.code = code;
+            this.isValid = isValid;
+            this.loadVehicles = loadVehicles;
+            this.buildFile = buildFile;
         }
 
         public void publish() {
-            List<Vehicle> vehicles = loadVehicles(code);
-            List<Vehicle> validVehicles = vehicles.stream().filter(this::isValid).toList();
-            File file = buildFile(validVehicles);
-            System.out.println("Uploaded "+validVehicles.size()+" vehicles in file = " + file);
+            List<Vehicle> vehicles = loadVehicles.loadVehicles(code);
+            List<Vehicle> validVehicles = vehicles.stream().filter(isValid::isValid).toList();
+            File file = buildFile.build(validVehicles);
+            System.out.println("Uploaded " + validVehicles.size() + " vehicles in file = " + file);
         }
 
-        protected abstract boolean isValid(Vehicle vehicle);
-
-        protected abstract List<Vehicle> loadVehicles(String code);
-
-        protected abstract File buildFile(List<Vehicle> vehicles);
-    }
-
-    static class SubitoPublisher extends AbstractCommonFormat {
-
-        SubitoPublisher() {
-            super("subito");
+        // Qui però stiamo inserendo un forte vincolo di ordine nella costruzione dell'oggetto Publisher...
+        public static B1 builder() {
+            return code -> rule -> loadVehicles -> buildFile -> new Publisher(code, rule, loadVehicles, buildFile);
         }
 
-        @Override
-        protected boolean isValid(Vehicle vehicle) {
-            return true;
+        interface B1 {
+            B2 code(String code);
         }
 
-        @Override
-        protected List<Vehicle> loadVehicles(String code) {
-            return List.of(new Vehicle(), new Vehicle());
-        }
-    }
-
-    static class AlVolantePublisher extends AbstractCustomVehicleLoad {
-
-        AlVolantePublisher() {
-            super("alvolante");
+        interface B2 {
+            B3 rule(PortalRule rule);
         }
 
-        @Override
-        protected boolean isValid(Vehicle vehicle) {
-            return true;
+        interface B3 {
+            B4 loadVehicles(VehicleLoader loadVehicles);
         }
 
-        @Override
-        protected File buildFile(List<Vehicle> vehicles) {
-            return new File("alvolante.txt");
-        }
-    }
-
-    static abstract class AbstractCommonFormat extends Publisher {
-        AbstractCommonFormat(String code) {
-            super(code);
-        }
-
-        @Override
-        protected File buildFile(List<Vehicle> vehicles) {
-            return new File("commonformat.txt");
-        }
-    }
-
-    static abstract class AbstractCustomVehicleLoad extends Publisher {
-
-        AbstractCustomVehicleLoad(String code) {
-            super(code);
-        }
-
-        @Override
-        protected List<Vehicle> loadVehicles(String code) {
-            return List.of(new Vehicle(), new Vehicle(), new Vehicle());
+        interface B4 {
+            Publisher buildFile(FileBuilder buildFile);
         }
     }
 
